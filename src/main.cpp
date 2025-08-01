@@ -13,6 +13,8 @@
 
 #include "Ecs.h"
 #include "PhysicsSystem.h"
+#include "Renderer.h"
+#include "Block.h"
 
 #include <iostream>
 #include "utils.h"
@@ -32,6 +34,10 @@ float calculateMemUsage();
 void renderText(Shader &shader, std::string text, float x, float y, float scale,
                 glm::vec3 color);
 
+void createMovingBlocksWave(ChunkMesh<float> *entityMesh, float deltaTime);
+void createMovingBlocksRandom(ChunkMesh<float> *entityMesh, float deltaTime);
+
+
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
@@ -43,6 +49,7 @@ std::unordered_map<int, bool> keyPressMap;
 ChunkManager *chunkManager;
 // Global coordinator
 Coordinator gCoordinator;
+
 
 const int FPS_HISTORY_CAP = 5000;
 const int MEM_HISTORY_CAP = 5000;
@@ -119,24 +126,57 @@ int main() {
 
     // build and compile shader programs
     // ------------------------------------
-    Shader *ourShader =
+    Shader *terrainShader =
         new Shader("src/shaders/terrain.vert", "src/shaders/terrain.frag");
     Shader *defaultShader =
         new Shader("src/shaders/shader.vert", "src/shaders/shader.frag");
+    Shader *blockShader = 
+        new Shader("src/shaders/basic.vert", "src/shaders/basic.frag");
 
-    // glm::vec3 pos = glm::vec3(0, 0, 0);
-    // Chunk chunk = Chunk(pos, ourShader);
-    // chunk.load();
-    // chunk.setup();
+    // define renderers
+    // -----------------------------
+    Renderer<int> * chunkRenderer = new ChunkRenderer();
+    Renderer<float> * blockRenderer = new BlockRenderer();
+
+
+
+    // code for creating a seperate block mesh and adding a block 
+    // this needs to be addressed in major refactor
+    // -------------------------------------------------------------
+
+    // add a block to block renderer
+    ChunkMesh<float> blockMesh;
+    // this should be part of class
+    blockMesh.vertexCount = 0;  // make set up code, refactor
+    blockMesh.triangleCount = 0;    // make set up code, refactor - change to index count
+    blockMesh.vaoId = 0; // Initialize VAO ID
+    blockMesh.vboId = nullptr; // Initialize VBO ID pointer
+
+    blockMesh.vertices = (float *)malloc(151200 * sizeof(float));   //allocate space
+    blockMesh.indices = (unsigned int *)malloc(32400 * sizeof(unsigned int));
+
+    // Block::creatColourCube(glm::vec3(0.0f, 5.0f, 0.0f),
+    //                        glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.5f, 0.5f),
+    //                        blockMesh.vertices, blockMesh.indices,
+    //                        &(blockMesh.vertexCount), &(blockMesh.triangleCount));
+
+    createMovingBlocksRandom(&blockMesh, 0.0f);
+
+
+    blockRenderer->upload(&(blockMesh.vaoId), &(blockMesh.vboId), 
+        blockMesh.vertices, blockMesh.vertexCount, blockMesh.indices, blockMesh.triangleCount, true);
+    
+
+
 
     // load textures
     // -----------------------------
     Texture blockTextures("src/textures/terrain.png", 16, 16);
     blockTextures.bindTexture(0);
-    ourShader->use();
-    ourShader->setInt("texture1", 0);   // set texture1 in shader to binded texture #0
-    ourShader->setFloat("texWidth", (1.0f / (float) blockTextures.atlasCols));
-    ourShader->setFloat("texHeight", (1.0f / (float) blockTextures.atlasRows));
+    terrainShader->use();
+    terrainShader->setInt("texture1", 0);   // set texture1 in shader to binded texture #0
+    terrainShader->setFloat("texWidth", (1.0f / (float) blockTextures.atlasCols));
+    terrainShader->setFloat("texHeight", (1.0f / (float) blockTextures.atlasRows));
 
 
     // optional: back face culling
@@ -151,12 +191,12 @@ int main() {
     // define terrain generator
     // -----------------------------
     TerrainGenerator *terrainGenerator = new TerrainGenerator(Chunk::CHUNK_SIZE, 0);
-
     // Use custom terrain generator
     // TerrainGenerator * terrainGenerator = new HillsTerrainGenerator(Chunk::CHUNK_SIZE, 1337);
 
+
     // initialize coordinator
-    chunkManager = new ChunkManager(4, 3, ourShader, terrainGenerator);
+    chunkManager = new ChunkManager(4, 3, terrainShader, chunkRenderer, terrainGenerator);
     gCoordinator.Init(chunkManager);
 
     // generate terrain
@@ -227,8 +267,29 @@ int main() {
         gCoordinator.mChunkManager->render(gCoordinator.mCamera);
         
         // TODO: render the "player" entity
-        defaultShader->use();
-        glUseProgram(0);
+        // defaultShader->use();
+        // glUseProgram(0);
+
+        // recreate the block mesh for current time
+
+        blockMesh.vertexCount = 0;  // reset vertex count
+        blockMesh.triangleCount = 0;    // reset triangle count
+
+        createMovingBlocksRandom(&blockMesh, deltaTime);
+
+        blockRenderer->update(&(blockMesh.vaoId), blockMesh.vboId, 
+                                    blockMesh.vertices, blockMesh.vertexCount, 
+                                    blockMesh.indices, blockMesh.triangleCount);
+
+
+
+        // render the block
+        blockRenderer->draw(gCoordinator.mCamera, &(blockMesh.vaoId), blockMesh.vboId,
+                            blockMesh.vertices, blockMesh.vertexCount,
+                            blockMesh.indices, blockMesh.triangleCount,
+                            blockShader, glm::vec3(0.0f, 0.0f, 0.0f));
+
+
 
         // Calculate  FPS
         int fps = calculateFPS(deltaTime);
@@ -548,4 +609,83 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
 
     gCoordinator.mCamera.frustum =
         createFrustumFromCamera(gCoordinator.mCamera);
+}
+
+
+
+// functions for rendering blocks from demo
+// -------------------------------------------------------------
+
+void createMovingBlocksWave(ChunkMesh<float> * entityMesh, float deltaTime){
+    static float time = 0.0f;
+    time += deltaTime;
+
+    
+    // Create a 10x10 grid of blocks
+    for (int x = 0; x < 30; x++) {
+        for (int z = 0; z < 30; z++) {
+            // Calculate position with spacing
+            float blockX = x * 1.f; // Center the grid
+            float blockZ = z * 1.f;
+            
+            // Create random phase offset for each block
+            float phaseOffset = (x * 0.7f + z * 0.5f) * 3.14159f;
+            
+            // Calculate wave that starts from corner (0,0) and ripples to corner (9,9)
+            float distanceFromCorner = sqrt(x*x + z*z); // Distance from origin corner
+            float waveSpeed = 2.0f;
+            float waveFreq = 0.5f;
+            float blockY = sin(time * waveSpeed + distanceFromCorner * waveFreq) * 2.0f;
+            
+            // Random color for each block based on x/z
+            float r = 0.1f; // Keep red low for blue/green gradient
+            float g = 0.3f + (static_cast<float>(x) / 25.0f) * 0.6f; // Green gradient across X
+            float b = 0.3f + (static_cast<float>(z) / 25.0f) * 0.6f; // Blue gradient across Z
+            
+            Block::creatColourCube(glm::vec3(blockX, blockY, blockZ),
+                                   glm::vec3(2.0f, 2.0f, 2.0f),
+                                   glm::vec3(r, g, b),
+                                   entityMesh->vertices,
+                                   entityMesh->indices,
+                                   &(entityMesh->vertexCount),
+                                   &(entityMesh->triangleCount));
+        }
+    }
+}
+
+void createMovingBlocksRandom(ChunkMesh<float> * entityMesh, float deltaTime){
+    static float time = 0.0f;
+    time += deltaTime;
+
+    
+    // Create a 30x30 grid of blocks
+    for (int x = 0; x < 30; x++) {
+        for (int z = 0; z < 30; z++) {
+            // Calculate position with spacing
+            float blockX = x * 1.f; // Center the grid
+            float blockZ = z * 1.f;
+            
+            // Create random phase offset for each block
+            float phaseOffset = (x * 0.7f + z * 0.5f) * 3.14159f;
+            
+            // Calculate sine wave height with random variations
+            float angle = (x + z) * 0.1f;
+            float waveHeight = sin(time * 2.0f + phaseOffset) * 2.0f;
+            float randomOffset = sin(time * 1.3f + phaseOffset * 2.0f) * 0.5f;
+            float blockY = waveHeight + randomOffset - angle;
+            
+            // Random color for each block based on x/z
+            float r = 0.1f; // Keep red low for blue/green gradient
+            float g = 0.3f + (static_cast<float>(x) / 29.0f) * 0.6f; // Green gradient across X
+            float b = 0.3f + (static_cast<float>(z) / 29.0f) * 0.6f; // Blue gradient across Z
+            
+            Block::creatColourCube(glm::vec3(blockX, blockY + 10, blockZ),
+                                   glm::vec3(1.0f, 1.0f, 1.0f),
+                                   glm::vec3(r, g, b),
+                                   entityMesh->vertices,
+                                   entityMesh->indices,
+                                   &(entityMesh->vertexCount),
+                                   &(entityMesh->triangleCount));
+        }
+    }
 }
