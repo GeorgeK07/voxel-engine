@@ -126,12 +126,12 @@ int main() {
 
     // build and compile shader programs
     // ------------------------------------
-    Shader *terrainShader =
-        new Shader("src/shaders/terrain.vert", "src/shaders/terrain.frag");
-    Shader *defaultShader =
-        new Shader("src/shaders/shader.vert", "src/shaders/shader.frag");
-    Shader *blockShader = 
-        new Shader("src/shaders/basic.vert", "src/shaders/basic.frag");
+    std::shared_ptr<Shader> terrainShader =
+        std::make_shared<Shader>("src/shaders/terrain.vert", "src/shaders/terrain.frag");
+    std::shared_ptr<Shader> defaultShader =
+        std::make_shared<Shader>("src/shaders/shader.vert", "src/shaders/shader.frag");
+    std::shared_ptr<Shader> blockShader = 
+        std::make_shared<Shader>("src/shaders/basic.vert", "src/shaders/basic.frag");
 
     // define renderers
     // -----------------------------
@@ -152,8 +152,11 @@ int main() {
     blockMesh.vaoId = 0; // Initialize VAO ID
     blockMesh.vboId = nullptr; // Initialize VBO ID pointer
 
-    blockMesh.vertices = (float *)malloc(151200 * sizeof(float));   //allocate space
-    blockMesh.indices = (unsigned int *)malloc(32400 * sizeof(unsigned int));
+    // blockMesh.vertices = (float *)malloc(151200 * sizeof(float));   //allocate space
+    blockMesh.vertices.clear();
+    blockMesh.indices.clear();
+    blockMesh.vertices.reserve(151200); // Optional: reserve if you know a rough upper bound
+    blockMesh.indices.reserve(32400);   // Optional: reserve if you know a rough upper bound
 
     // Block::creatColourCube(glm::vec3(0.0f, 5.0f, 0.0f),
     //                        glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.5f, 0.5f),
@@ -271,17 +274,19 @@ int main() {
         // glUseProgram(0);
 
         // recreate the block mesh for current time
-
+        blockMesh.vertices.clear();
+        blockMesh.indices.clear();
         blockMesh.vertexCount = 0;  // reset vertex count
         blockMesh.triangleCount = 0;    // reset triangle count
 
         createMovingBlocksRandom(&blockMesh, deltaTime);
 
+        blockMesh.vertexCount = blockMesh.vertices.size();
+        blockMesh.triangleCount = blockMesh.indices.size();
+        
         blockRenderer->update(&(blockMesh.vaoId), blockMesh.vboId, 
                                     blockMesh.vertices, blockMesh.vertexCount, 
                                     blockMesh.indices, blockMesh.triangleCount);
-
-
 
         // render the block
         blockRenderer->draw(gCoordinator.mCamera, &(blockMesh.vaoId), blockMesh.vboId,
