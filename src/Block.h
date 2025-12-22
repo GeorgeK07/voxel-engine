@@ -34,7 +34,7 @@ std::unordered_map<int, std::vector<std::pair<int, int>>> textureCoordMap = {
 
 class Block {
     static void addColCubeFace(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, glm::vec3 col, float brightness,
-                        std::vector<float> &vertices, std::vector<unsigned int> &indices, int *vCount, int *iCount);
+                        std::vector<float> &vertices, std::vector<unsigned int> &indices, int &vCount, int &iCount);
 public:
     static constexpr int BLOCK_RENDER_SIZE = 2;
     // TODO: do we keep this in CPU or in GPU ?
@@ -46,7 +46,7 @@ public:
     
 
     static void creatColourCube(glm::vec3 pos, glm::vec3 sie, glm::vec3 colour,
-                                std::vector<float> &vertices, std::vector<unsigned int> &indices, int *vCount, int *iCount);
+                                std::vector<float> &vertices, std::vector<unsigned int> &indices, int &vCount, int &iCount);
     
    // static void createTexCube(glm::vec3 pos, glm::vec3 size,
     //                            std::vector<float> &vertices, std::vector<unsigned int> &indices, int *vCount, int *iCount,
@@ -58,10 +58,10 @@ public:
 
 
 void Block::addColCubeFace(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, glm::vec3 col, float brightness,
-                         std::vector<float> &vertices, std::vector<unsigned int> &indices, int *vCount, int *iCount) {
+                         std::vector<float> &vertices, std::vector<unsigned int> &indices, int &vCount, int &iCount) {
     // 7 floats per vertex: x, y, z, r, g, b, brightness
     glm::vec3 points[4] = {p1, p2, p3, p4};
-    int index_offset = *vCount / 7;
+    int index_offset = vCount / 7;
 
     // Add vertices using push_back
     for (int i = 0; i < 4; i++) {
@@ -82,15 +82,15 @@ void Block::addColCubeFace(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p
     indices.push_back(index_offset + 2);
     indices.push_back(index_offset + 3);
 
-    *vCount += 28; // 7 floats per vertex, 4 vertices per face
-    *iCount += 6;
+    vCount += 28; // 7 floats per vertex, 4 vertices per face
+    iCount += 6;
 }
 
 
 // no neighbouring checking
 // no compression 
 void Block::creatColourCube(glm::vec3 pos, glm::vec3 size, glm::vec3 colour,
-                    std::vector<float> &vertices, std::vector<unsigned int> &indices, int *vCount, int *iCount){
+                    std::vector<float> &vertices, std::vector<unsigned int> &indices, int &vCount, int &iCount){
     float blockX = pos.x;
     float blockY = pos.y;
     float blockZ = pos.z;

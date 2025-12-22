@@ -161,7 +161,7 @@ int main() {
     // Block::creatColourCube(glm::vec3(0.0f, 5.0f, 0.0f),
     //                        glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.5f, 0.5f),
     //                        blockMesh.vertices, blockMesh.indices,
-    //                        &(blockMesh.vertexCount), &(blockMesh.triangleCount));
+    //                        (blockMesh.vertexCount), (blockMesh.triangleCount));
 
     createMovingBlocksRandom(&blockMesh, 0.0f);
 
@@ -652,8 +652,8 @@ void createMovingBlocksWave(ChunkMesh<float> * entityMesh, float deltaTime){
                                    glm::vec3(r, g, b),
                                    entityMesh->vertices,
                                    entityMesh->indices,
-                                   &(entityMesh->vertexCount),
-                                   &(entityMesh->triangleCount));
+                                   (entityMesh->vertexCount),
+                                   (entityMesh->triangleCount));
         }
     }
 }
@@ -689,8 +689,8 @@ void createMovingBlocksRandom(ChunkMesh<float> * entityMesh, float deltaTime){
                                    glm::vec3(r, g, b),
                                    entityMesh->vertices,
                                    entityMesh->indices,
-                                   &(entityMesh->vertexCount),
-                                   &(entityMesh->triangleCount));
+                                   (entityMesh->vertexCount),
+                                   (entityMesh->triangleCount));
         }
     }
 }
