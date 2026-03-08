@@ -6,6 +6,15 @@
 
 ![overview](assets/overview.png)
 
+### Controls
+WASD - Move\
+Space - Move upwards\
+Shift - Move downwards\
+B - Display debug menu\
+X - Toggle chunk generation\
+R - Hot reload shaders\
+Mouse - Look around
+
 ### Instructions
 
 Make sure to clone this repository recursively!

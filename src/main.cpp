@@ -180,9 +180,9 @@ int main() {
 
 
     // optional: back face culling
-    // glEnable(GL_CULL_FACE);   // Enable backface culling
-	// glCullFace(GL_BACK);      // Cull back faces
-	// glFrontFace(GL_CCW);   
+    glEnable(GL_CULL_FACE);   // Enable backface culling
+	glCullFace(GL_BACK);      // Cull back faces
+	glFrontFace(GL_CCW);   
 
 
     char fpsStr[32] = "FPS: 0";
@@ -250,7 +250,23 @@ int main() {
 
         // input
         // -----
+        // Process inputs for movement and debugging
         processInput(window, &cursorOn);
+        // Press r to hot reload shaders
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            // Reload terrainShader and set it to use texture1 (terrain textures)
+            terrainShader->reloadShader("src/shaders/terrain.vert",
+                                        "src/shaders/terrain.frag");
+            terrainShader->use();
+            terrainShader->setInt("texture1", 0);
+            terrainShader->setFloat("texWidth", (1.0f / (float)blockTextures.atlasCols));
+            terrainShader->setFloat("texHeight", (1.0f / (float)blockTextures.atlasRows));
+            // Reload defaultShader and blockShader
+            defaultShader->reloadShader("src/shaders/shader.vert",
+                                        "src/shaders/shader.frag");
+            blockShader->reloadShader("src/shaders/basic.vert",
+                                        "src/shaders/basic.frag");
+        }
 
         // render
         // ------
@@ -523,7 +539,7 @@ int calculateFPS(float deltaTime) {
         return fps;
     }
 
-    return -1.0;
+    return -1;
 }
 
 // Function to calculate and return the RAM usage as a string
@@ -632,7 +648,7 @@ void createMovingBlocksWave(ChunkMesh<float> * entityMesh, float deltaTime){
             float phaseOffset = (x * 0.7f + z * 0.5f) * 3.14159f;
             
             // Calculate wave that starts from corner (0,0) and ripples to corner (9,9)
-            float distanceFromCorner = sqrt(x*x + z*z); // Distance from origin corner
+            float distanceFromCorner = (float)sqrt(x*x + z*z); // Distance from origin corner
             float waveSpeed = 2.0f;
             float waveFreq = 0.5f;
             float blockY = sin(time * waveSpeed + distanceFromCorner * waveFreq) * 2.0f;
