@@ -1,6 +1,6 @@
 # Voxel Engine
 
-![preview](https://github.com/user-attachments/assets/f4f6eb2c-5e47-4f15-8a8e-db896befeffd)
+https://github.com/user-attachments/assets/47b3f7ce-3157-46a5-8faa-bcd0c895aa4a
 
 ## Overview
 
@@ -74,3 +74,4 @@ Our voxel engine is currently a work-in-progress, but we still welcome contribut
 
 This project is licensed under the MIT License.
 See [LICENSE](LICENSE) for details.
+
