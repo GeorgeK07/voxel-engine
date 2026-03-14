@@ -6,7 +6,7 @@ https://github.com/user-attachments/assets/47b3f7ce-3157-46a5-8faa-bcd0c895aa4a
 
 ![overview](assets/overview.png)
 
-### Controls
+## Controls
 WASD - Move\
 Space - Move upwards\
 Shift - Move downwards\
@@ -15,12 +15,18 @@ X - Toggle chunk generation\
 R - Hot reload shaders\
 Mouse - Look around
 
-### Instructions
+## Instructions
 
 Make sure to clone this repository recursively!
 
 ```
 git clone https://github.com/compsci-adl/voxel-engine --recursive
+```
+
+Can also clone with shallow submodules to save space:
+
+```
+git clone https://github.com/compsci-adl/voxel-engine --recursive --shallow-submodules
 ```
 
 If you have cloned it non-recursively:
@@ -33,11 +39,15 @@ git submodule update --init
 
 ### Linux, Mac OS, MSYS (Windows)
 
+(Type release as argument to build optimized release version)
+
 ```sh
 ./build.sh
 ```
 
 ### Windows - Visual Studio
+
+(Type release as argument to build optimized release version)
 
 ```bat
 .\build.bat
@@ -74,4 +84,3 @@ Our voxel engine is currently a work-in-progress, but we still welcome contribut
 
 This project is licensed under the MIT License.
 See [LICENSE](LICENSE) for details.
-
