@@ -138,7 +138,7 @@ void Block::creatColourCube(glm::vec3 pos, glm::vec3 size, glm::vec3 colour,
 
      // front, back, left, right, top, bottom
 
-    glm::vec3 n1;       // for normal??, not used. 
+    // glm::vec3 n1;       // for normal??, not used. 
     // front face
     addColCubeFace(p1, p2, p3, p4, colour, 0.86f, vertices, indices, vCount, iCount);
 

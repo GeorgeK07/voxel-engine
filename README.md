@@ -1,17 +1,32 @@
 # Voxel Engine
 
-![preview](https://github.com/user-attachments/assets/f4f6eb2c-5e47-4f15-8a8e-db896befeffd)
+https://github.com/user-attachments/assets/47b3f7ce-3157-46a5-8faa-bcd0c895aa4a
 
 ## Overview
 
 ![overview](assets/overview.png)
 
-### Instructions
+## Controls
+WASD - Move\
+Space - Move upwards\
+Shift - Move downwards\
+B - Display debug menu\
+X - Toggle chunk generation\
+R - Hot reload shaders\
+Mouse - Look around
+
+## Instructions
 
 Make sure to clone this repository recursively!
 
 ```
 git clone https://github.com/compsci-adl/voxel-engine --recursive
+```
+
+Can also clone with shallow submodules to save space:
+
+```
+git clone https://github.com/compsci-adl/voxel-engine --recursive --shallow-submodules
 ```
 
 If you have cloned it non-recursively:
@@ -33,6 +48,18 @@ git submodule update --init
 ```bat
 .\build.bat
 ```
+
+### Build flags
+
+To specify building the optimized release version or debug version, add the argument `release` or `debug` to the build script.
+
+Example:
+
+```
+./build.sh release
+```
+
+If no flag is given, the debug version is built by default.
 
 ## Troubleshooting
 

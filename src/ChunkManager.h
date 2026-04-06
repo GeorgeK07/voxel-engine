@@ -235,11 +235,11 @@ void ChunkManager::pregenerateChunks() {
 
     std::vector<std::future<void>> futures; // Store futures to manage threads
 
-    for (float i = -halfWorldSize; i < halfWorldSize;
+    for (float i = (float)-halfWorldSize; i < halfWorldSize;
          i += Chunk::CHUNK_SIZE * Block::BLOCK_RENDER_SIZE) {
-        for (float j = -halfWorldSize; j < halfWorldSize;
+        for (float j = (float)-halfWorldSize; j < halfWorldSize;
              j += Chunk::CHUNK_SIZE * Block::BLOCK_RENDER_SIZE) {
-            for (float k = -halfWorldSize; k < halfWorldSize;
+            for (float k = (float)-halfWorldSize; k < halfWorldSize;
                  k += Chunk::CHUNK_SIZE * Block::BLOCK_RENDER_SIZE) {
 
                 if (j > -Block::BLOCK_RENDER_SIZE) {

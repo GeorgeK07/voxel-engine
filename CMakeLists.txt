@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED OFF)    # changed to off
 file(GLOB SOURCES "src/main.cpp")
 
 if(WIN32)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker /errorlimit:0")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker")
 endif()
 
 # Add GLAD
@@ -23,7 +23,7 @@ add_subdirectory(libs/glfw)
 set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
-# GLM
+# GLM (Requires internet for fetch)
 include(FetchContent)
 
 FetchContent_Declare(
