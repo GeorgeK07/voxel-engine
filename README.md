@@ -39,19 +39,27 @@ git submodule update --init
 
 ### Linux, Mac OS, MSYS (Windows)
 
-(Type release as argument to build optimized release version)
-
 ```sh
 ./build.sh
 ```
 
 ### Windows - Visual Studio
 
-(Type release as argument to build optimized release version)
-
 ```bat
 .\build.bat
 ```
+
+### Build flags
+
+To specify building the optimized release version or debug version, add the argument `release` or `debug` to the build script.
+
+Example:
+
+```
+./build.sh release
+```
+
+If no flag is given, the debug version is built by default.
 
 ## Troubleshooting
 
